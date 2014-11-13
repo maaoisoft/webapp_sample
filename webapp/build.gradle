@@ -1,13 +1,56 @@
 apply plugin: 'java'
 apply plugin: 'war'
-apply plugin: 'eclipse'
+apply plugin: 'eclipse' // 用于生成eclipse项目
+apply plugin: 'jetty' // 
 
+// 设置JDK版本
+sourceCompatibility = 1.7
+// 设置WebApp根目录
+//webAppDirName = 'webapp'
+// 设置Java源码目录
+//sourceSets.main.java.srcDir 'src'
+
+// 创建Java项目目录
 task createJavaProject << {
     sourceSets*.java.srcDirs*.each { it.mkdirs() }
     sourceSets*.resources.srcDirs*.each { it.mkdirs() }
 }
 
+// 创建Web项目目录
 task createWebProject(dependsOn: 'createJavaProject') << {
     def webAppDir = file("$webAppDirName")
     webAppDir.mkdirs()
+}
+
+task copyJars(type: Copy) {
+    from configurations.runtime
+    into 'src/main/webapp/WEB-INF/lib'
+}
+
+// 设置maven库地址
+repositories {
+    // 中央库
+    mavenCentral()
+}
+
+// 设置依赖
+dependencies {
+    // 仅在编译期依赖
+    providedCompile(
+        //'javax.servlet:servlet-api:3+'
+    )
+    // 仅在运行期依赖
+    providedRuntime(
+        //'javax.servlet:jstl:1.2'
+    )
+    // 编译期，这里暂时不添加依赖
+    compile(
+         'org.apache.struts:struts2-core:2.3+'
+        ,'org.apache.velocity:velocity:1.7'
+        ,'org.apache.velocity:velocity-tools:2.0'
+    )
+    // 测试期
+    testCompile(
+    	'junit:junit:4.11'
+    )
 }
